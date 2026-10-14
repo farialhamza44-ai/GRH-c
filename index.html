@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GRH-F - حساب الموظفين | الترقية في الدرجات</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+*{font-family:'Tajawal',sans-serif;box-sizing:border-box}
+body{margin:0;background:#0d1117;color:#e6edf3;line-height:1.7}
+header{background:#010409;border-bottom:1px solid #30363d;padding:18px 24px;position:sticky;top:0;z-index:10}
+header h1{margin:0;font-size:22px;color:#f0f6fc}
+header p{margin:4px 0 0;color:#8b949e;font-size:13px}
+.container{max-width:1250px;margin:0 auto;padding:20px}
+.card{background:#161b22;border:1px solid #30363d;border-radius:12px;padding:18px;margin-bottom:18px}
+.card h2{margin:0 0 12px;font-size:18px;color:#58a6ff}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+label{display:block;font-size:13px;color:#8b949e;margin-bottom:4px}
+input,select{width:100%;padding:10px 12px;background:#0d1117;border:1px solid #30363d;border-radius:8px;color:#e6edf3;font-size:14px}
+input:focus,select:focus{outline:none;border-color:#1f6feb}
+.btn{padding:10px 18px;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:14px}
+.btn-primary{background:#238636;color:white}
+.btn-primary:hover{background:#2ea043}
+.btn-secondary{background:#21262d;color:#e6edf3;border:1px solid #30363d}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:#21262d;padding:10px;text-align:right;color:#8b949e;border-bottom:1px solid #30363d}
+td{padding:10px;border-bottom:1px solid #21262d}
+.badge{padding:3px 8px;border-radius:20px;font-size:11px;font-weight:700}
+.badge-denia{background:#1a4d2e;color:#56d364}
+.badge-moyenne{background:#1f3d6e;color:#79c0ff}
+.badge-max{background:#5a2a2a;color:#ff9a8a}
+.badge-ok{background:#238636;color:white}
+.badge-no{background:#30363d;color:#8b949e}
+.legal{font-size:12px;color:#8b949e;background:#010409;border:1px dashed #30363d;padding:10px;border-radius:8px}
+</style>
+</head>
+<body>
+<header>
+<h1>GRH-F | حساب الموظفين - الترقية في الدرجات</h1>
+<p>وفق الأمر 06-03 المادة 106 والمرسوم الرئاسي 07-304 المواد 10-14 | المدد: دنيا 2س6ش (30 شهر) - متوسطة 3س (36) - قصوى 3س6ش (42) | نسب 4-4-2 و 6-4</p>
+</header>
+<div class="container">
+<div class="card">
+<h2>📋 إضافة موظف</h2>
+<div class="grid">
+<div><label>الاسم واللقب</label><input id="nom" value="أحمد بوعلام"></div>
+<div><label>الرتبة</label><select id="grade"><option>متصرف</option><option>متصرف محلل</option><option>مهندس دولة م1</option><option>أستاذ مساعد قسم ب</option><option>عون إدارة</option></select></div>
+<div><label>الدرجة الحالية</label><input id="deg" type="number" value="2"></div>
+<div><label>تاريخ سريان الدرجة</label><input id="dateEffet" type="date" value="2021-01-01"></div>
+<div><label>النقطة السنوية /20</label><input id="note" type="number" step="0.1" value="17.5"></div>
+<div><label>باقي الأقدمية (شهر)</label><input id="reliquat" type="number" value="0"></div>
+<div><label>استيداع / توقيف (شهر)</label><input id="susp" type="number" value="0"></div>
+<div><label>نظام الترقية</label><select id="sys"><option value="3">3 وتائر (4-4-2) - 40%/40%/20%</option><option value="2">وتيرتان (6-4) - 60%/40%</option></select></div>
+</div>
+<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
+<button class="btn btn-primary" onclick="addEmp()">➕ إضافة للقائمة</button>
+<button class="btn btn-primary" onclick="calcul()">⚖️ احتساب الترقية حسب القانون</button>
+<button class="btn btn-secondary" onclick="exportExcel()">📥 تصدير Excel</button>
+<button class="btn btn-secondary" onclick="clearAll()">🗑️ تفريغ</button>
+</div>
+</div>
+
+<div class="card">
+<h2>⚙️ السنة المالية</h2>
+<div class="grid" style="grid-template-columns:repeat(3,1fr)">
+<div><label>السنة المالية</label><input id="annee" type="number" value="2024"></div>
+<div><label>تاريخ الحصر 31/12</label><input id="cloture" type="date" value="2024-12-31"></div>
+<div><label>تاريخ اجتماع اللجنة</label><input id="cap" type="date" value="2025-03-15"></div>
+</div>
+</div>
+
+<div class="card">
+<h2>📊 جدول الترقية السنوي - Tableau d'avancement</h2>
+<div style="overflow:auto">
+<table id="tab">
+<thead>
+<tr>
+<th>#</th><th>الاسم</th><th>الرتبة</th><th>الدرجة</th><th>تاريخ السريان</th><th>النقطة</th><th>الوتيرة</th><th>المدة</th><th>تاريخ الاستحقاق النظري</th><th>الدرجة الجديدة</th><th>الحالة</th><th>ملاحظات قانونية</th>
+</tr>
+</thead>
+<tbody id="tbody"></tbody>
+</table>
+</div>
+<div class="legal" style="margin-top:12px">
+<b>المرجعية القانونية:</b><br>
+• المادة 106 من الأمر 06-03: الترقية في الدرجات تتم بصفة مستمرة حسب الوتائر والكيفيات المحددة عن طريق التنظيم.<br>
+• المادة 11 من المرسوم 07-304: الأقدمية المطلوبة للترقية في كل درجة بثلاث مدد على الأكثر دنيا ومتوسطة وقصوى (30 و 42 سنة لـ 12 درجة).<br>
+• المادة 12: الترقية تتم بقوة القانون بعد استنفاذ المدة القصوى.<br>
+• المادة 145 من الأمر 06-03: الإحالة على الاستيداع توقف الحقوق في الأقدمية والترقية.<br>
+• المرسوم 19-165: التقييم السنوي شرط للترقية.
+</div>
+</div>
+</div>
+
+<script>
+let emps=[];
+function addEmp(){
+ let e={
+  nom:document.getElementById('nom').value,
+  grade:document.getElementById('grade').value,
+  deg:parseInt(document.getElementById('deg').value),
+  date:document.getElementById('dateEffet').value,
+  note:parseFloat(document.getElementById('note').value),
+  reliquat:parseInt(document.getElementById('reliquat').value||0),
+  susp:parseInt(document.getElementById('susp').value||0),
+  sys:document.getElementById('sys').value
+ };
+ if(!e.nom||!e.date){alert('أكمل البيانات');return;}
+ emps.push(e);
+ calcul();
+}
+function calcul(){
+ let annee=parseInt(document.getElementById('annee').value);
+ let cloture=new Date(document.getElementById('cloture').value);
+ let sorted=[...emps].sort((a,b)=>b.note-a.note || new Date(a.date)-new Date(b.date));
+ let n=sorted.length;
+ let html='';
+ sorted.forEach((emp,idx)=>{
+  let watira, duree;
+  if(emp.sys=='3'){
+   let nbD=Math.round(n*0.4), nbM=Math.round(n*0.4);
+   if(idx<nbD){watira='دنيا'; duree=30;}
+   else if(idx<nbD+nbM){watira='متوسطة'; duree=36;}
+   else{watira='قصوى'; duree=42;}
+  }else{
+   let nbD=Math.round(n*0.6);
+   if(idx<nbD){watira='دنيا'; duree=30;} else{watira='متوسطة'; duree=36;}
+  }
+  let dateEffet=new Date(emp.date);
+  let dateTheo=new Date(dateEffet); dateTheo.setMonth(dateTheo.getMonth()+duree+emp.reliquat-emp.susp);
+  let echu=dateTheo<=cloture;
+  let degNew=emp.deg+1;
+  let obs='';
+  if(emp.susp>0) obs+=` خصم استيداع ${emp.susp}ش م145. `;
+  obs+=`${echu?'مستوفٍ':'غير مستوفٍ'} لسنة ${annee}. `;
+  if(duree==42) obs+='بقوة القانون م13.';
